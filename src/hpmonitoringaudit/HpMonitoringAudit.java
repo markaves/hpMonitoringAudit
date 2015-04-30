@@ -9,86 +9,30 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.util.Properties;
  
-import org.apache.commons.vfs2.FileObject;
-import org.apache.commons.vfs2.FileSystemOptions;
-import org.apache.commons.vfs2.Selectors;
-import org.apache.commons.vfs2.impl.StandardFileSystemManager;
-import org.apache.commons.vfs2.provider.sftp.SftpFileSystemConfigBuilder;
+
 /**
  *
  * @author aves
  */
 public class HpMonitoringAudit {
-    static Properties props;
+    
     /**
      * @param args the command line arguments
      */
     public static void main(String[] args) {
         // TODO code application logic here
                 // TODO code application logic here
-        HpMonitoringAudit etMyFiles = new HpMonitoringAudit();
+        sftp getMyFiles = new sftp();
         if (args.length < 1)
         {
-        System.err.println("Usage: java " + etMyFiles.getClass().getName()+
+        System.err.println("Usage: java " + getMyFiles.getClass().getName()+
         " Properties_filename File_To_Download ");
         System.exit(1);
         }
  
     String propertiesFilename = args[0].trim();
     String fileToDownload = args[1].trim();
-    etMyFiles.startFTP(propertiesFilename, fileToDownload);
+    getMyFiles.startFTP(propertiesFilename, fileToDownload);
     
     }
-  public boolean startFTP(String propertiesFilename, String fileToDownload){
- 
-  props = new Properties();
-  StandardFileSystemManager manager = new StandardFileSystemManager();
- 
-  try {
- 
-   props.load(new FileInputStream("properties/" + propertiesFilename));
-   String serverAddress = props.getProperty("serverAddress").trim();
-   String userId = props.getProperty("userId").trim();
-   String password = props.getProperty("password").trim();
-   String remoteDirectory = props.getProperty("remoteDirectory").trim();
-   String localDirectory = props.getProperty("localDirectory").trim();
- 
-    
-   //Initializes the file manager
-   manager.init();
-    
-   //Setup our SFTP configuration
-   FileSystemOptions opts = new FileSystemOptions();
-   SftpFileSystemConfigBuilder.getInstance().setStrictHostKeyChecking(
-     opts, "no");
-   SftpFileSystemConfigBuilder.getInstance().setUserDirIsRoot(opts, true);
-   SftpFileSystemConfigBuilder.getInstance().setTimeout(opts, 10000);
-    
-   //Create the SFTP URI using the host name, userid, password,  remote path and file name
-   String sftpUri = "sftp://" + userId + ":" + password +  "@" + serverAddress + "/" + 
-     remoteDirectory + fileToDownload;
-    
-   // Create local file object
-   String filepath = localDirectory +  fileToDownload;
-   File file = new File(filepath);
-   FileObject localFile = manager.resolveFile(file.getAbsolutePath());
- 
-   // Create remote file object
-   FileObject remoteFile = manager.resolveFile(sftpUri, opts);
- 
-   // Copy local file to sftp server
-   localFile.copyFrom(remoteFile, Selectors.SELECT_SELF);
-   System.out.println("File download successful");
- 
-  }
-  catch (Exception ex) {
-   ex.printStackTrace();
-   return false;
-  }
-  finally {
-   manager.close();
-  }
- 
-  return true;
-    }   
 }
